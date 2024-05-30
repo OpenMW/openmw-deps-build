@@ -58,7 +58,7 @@ jobs:
         bullet3[double-precision,multithreading]
         ffmpeg
         freetype
-        icu
+        icu[core]
         luajit
         lz4
         mygui
@@ -142,7 +142,7 @@ jobs:
         bullet3[double-precision,multithreading]
         ffmpeg
         freetype
-        icu
+        icu[core]
         luajit
         lz4
         mygui
