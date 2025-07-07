@@ -1,0 +1,7 @@
+# from x64-windows.cmake
+set(VCPKG_TARGET_ARCHITECTURE x64)
+set(VCPKG_CRT_LINKAGE dynamic)
+set(VCPKG_LIBRARY_LINKAGE dynamic)
+
+# to get MSVC 2019
+set(VCPKG_PLATFORM_TOOLSET v142)

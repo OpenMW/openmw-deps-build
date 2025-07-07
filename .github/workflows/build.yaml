@@ -13,13 +13,15 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        image:
-        - windows-2019
-        - windows-2022
+        msvc_version:
+        - year: 2019
+          triplet: x64-windows-2019-static
+        - year: 2022
+          triplet: x64-windows-static
 
-    name: static-${{ matrix.image }}
+    name: static-windows-${{ matrix.msvc_version }}
 
-    runs-on: ${{ matrix.image }}
+    runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v4
@@ -30,6 +32,12 @@ jobs:
         script: |
           core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+    
+    - name: Install MSVC 2019
+      if: ${{ matrix.msvc_version.year == 2019 }}
+      run: >
+        # this is temporary, so please excuse the hardcoded paths
+        & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.ComponentGroup.VC.Tools.142.x86.x64 --quiet --norestart
 
     - name: Set up vcpkg
       run: |
@@ -40,7 +48,7 @@ jobs:
 
     - name: Install vcpkg packages
       run: >
-        vcpkg install --overlay-ports=ports --triplet x64-windows-static
+        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ matrix.msvc_version.triplet }}
         boost-geometry
         boost-iostreams
         boost-program-options
@@ -73,35 +81,37 @@ jobs:
 
     - name: Archive pdb files
       working-directory: '${{ github.workspace }}/intermediate/pdb'
-      run: 7z a "${{ github.workspace }}/vcpkg-x64-${{ matrix.image }}-static-pdb-${{ github.sha }}.7z" installed
+      run: 7z a "${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-pdb-${{ github.sha }}.7z" installed
 
     - name: Store archived pdb files
       uses: actions/upload-artifact@v4
       with:
-        name: vcpkg-x64-${{ matrix.image }}-static-pdb-${{ github.sha }}
-        path: ${{ github.workspace }}/vcpkg-x64-${{ matrix.image }}-static-pdb-${{ github.sha }}.7z
+        name: vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-pdb-${{ github.sha }}
+        path: ${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-pdb-${{ github.sha }}.7z
 
     - name: Archive everything else
       working-directory: '${{ github.workspace }}/intermediate'
-      run: 7z a "${{ github.workspace }}/vcpkg-x64-${{ matrix.image }}-static-${{ github.sha }}.7z" * -x!pdb
+      run: 7z a "${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-${{ github.sha }}.7z" * -x!pdb
 
     - name: Store exported vcpkg packages
       uses: actions/upload-artifact@v4
       with:
-        name: vcpkg-x64-${{ matrix.image }}-static-${{ github.sha }}
-        path: ${{ github.workspace }}/vcpkg-x64-${{ matrix.image }}-static-${{ github.sha }}.7z
+        name: vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-${{ github.sha }}
+        path: ${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-${{ github.sha }}.7z
 
   dynamic:
     strategy:
       fail-fast: true
       matrix:
-        image:
-        - windows-2019
-        - windows-2022
+        msvc_version:
+        - year: 2019
+          triplet: x64-windows-2019
+        - year: 2022
+          triplet: x64-windows
 
-    name: dynamic-${{ matrix.image }}
+    name: dynamic-windows-${{ matrix.msvc_version.year }}
 
-    runs-on: ${{ matrix.image }}
+    runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v4
@@ -122,7 +132,7 @@ jobs:
 
     - name: Install vcpkg packages
       run: >
-        vcpkg install --overlay-ports=ports --triplet x64-windows
+        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ matrix.msvc_version.triplet }}
         boost-geometry
         boost-iostreams
         boost-program-options
@@ -155,23 +165,23 @@ jobs:
 
     - name: Archive pdb files
       working-directory: '${{ github.workspace }}/intermediate/pdb'
-      run: 7z a "${{ github.workspace }}/vcpkg-x64-${{ matrix.image }}-pdb-${{ github.sha }}.7z" installed
+      run: 7z a "${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-pdb-${{ github.sha }}.7z" installed
 
     - name: Store archived pdb files
       uses: actions/upload-artifact@v4
       with:
-        name: vcpkg-x64-${{ matrix.image }}-pdb-${{ github.sha }}
-        path: ${{ github.workspace }}/vcpkg-x64-${{ matrix.image }}-pdb-${{ github.sha }}.7z
+        name: vcpkg-x64-windows-${{ matrix.msvc_version.year }}-pdb-${{ github.sha }}
+        path: ${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-pdb-${{ github.sha }}.7z
 
     - name: Archive everything else
       working-directory: '${{ github.workspace }}/intermediate'
-      run: 7z a "${{ github.workspace }}/vcpkg-x64-${{ matrix.image }}-${{ github.sha }}.7z" * -x!pdb
+      run: 7z a "${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-${{ github.sha }}.7z" * -x!pdb
 
     - name: Store exported vcpkg packages
       uses: actions/upload-artifact@v4
       with:
-        name: vcpkg-x64-${{ matrix.image }}-${{ github.sha }}
-        path: ${{ github.workspace }}/vcpkg-x64-${{ matrix.image }}-${{ github.sha }}.7z
+        name: vcpkg-x64-windows-${{ matrix.msvc_version.year }}-${{ github.sha }}
+        path: ${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-${{ github.sha }}.7z
 
     - name: Repackage binaries for symbol server
       env:
