@@ -6,7 +6,6 @@ on:
 
 env:
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
-  VCPKG_REPOSITORY: https://github.com/microsoft/vcpkg.git
   VCPKG_REVISION: 137197a8f85e6c6cf1843ef024af7d9c28bb0bde
 
 jobs:
@@ -32,17 +31,12 @@ jobs:
           core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-    - working-directory: 'C:/vcpkg'
-      run: git remote add openmw ${{ env.VCPKG_REPOSITORY }}
-
-    - working-directory: 'C:/vcpkg'
-      run: git fetch openmw
-
-    - working-directory: 'C:/vcpkg'
-      run: git checkout ${{ env.VCPKG_REVISION }}
-
-    - working-directory: 'C:/vcpkg'
-      run: ./bootstrap-vcpkg.bat -disableMetrics
+    - name: Set up vcpkg
+      run: |
+        cd $Env:VCPKG_INSTALLATION_ROOT
+        git fetch
+        git checkout ${{ env.VCPKG_REVISION }}
+        ./bootstrap-vcpkg.bat -disableMetrics
 
     - name: Install vcpkg packages
       run: >
@@ -119,17 +113,12 @@ jobs:
           core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-    - working-directory: 'C:/vcpkg'
-      run: git remote add openmw ${{ env.VCPKG_REPOSITORY }}
-
-    - working-directory: 'C:/vcpkg'
-      run: git fetch openmw
-
-    - working-directory: 'C:/vcpkg'
-      run: git checkout ${{ env.VCPKG_REVISION }}
-
-    - working-directory: 'C:/vcpkg'
-      run: ./bootstrap-vcpkg.bat -disableMetrics
+    - name: Set up vcpkg
+      run: |
+        cd $Env:VCPKG_INSTALLATION_ROOT
+        git fetch
+        git checkout ${{ env.VCPKG_REVISION }}
+        ./bootstrap-vcpkg.bat -disableMetrics
 
     - name: Install vcpkg packages
       run: >
