@@ -15,7 +15,6 @@ jobs:
       fail-fast: true
       matrix:
         image:
-        - windows-2019
         - windows-2022
 
     name: static-${{ matrix.image }}
@@ -102,7 +101,6 @@ jobs:
       fail-fast: true
       matrix:
         image:
-        - windows-2019
         - windows-2022
 
     name: dynamic-${{ matrix.image }}
@@ -227,9 +225,7 @@ jobs:
 
     - name: Rename artifacts
       run: |
-        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2019-${{ github.sha }}.7z vcpkg-x64-windows-2019-${{ env.file }}.7z
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-${{ github.sha }}.7z vcpkg-x64-windows-2022-${{ env.file }}.7z
-        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2019-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2019-pdb-${{ env.file }}.7z
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2022-pdb-${{ env.file }}.7z
 
     - name: Release
