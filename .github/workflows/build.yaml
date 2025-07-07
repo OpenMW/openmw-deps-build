@@ -35,7 +35,7 @@ jobs:
     
     - name: Install MSVC 2019
       if: ${{ matrix.msvc_version.year == 2019 }}
-      run: >
+      run: |
         # this is temporary, so please excuse the hardcoded paths
         & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.ComponentGroup.VC.Tools.142.x86.x64 --quiet --norestart
 
@@ -122,6 +122,12 @@ jobs:
         script: |
           core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+    
+    - name: Install MSVC 2019
+      if: ${{ matrix.msvc_version.year == 2019 }}
+      run: |
+        # this is temporary, so please excuse the hardcoded paths
+        & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.ComponentGroup.VC.Tools.142.x86.x64 --quiet --norestart
 
     - name: Set up vcpkg
       run: |
