@@ -19,7 +19,7 @@ jobs:
         - year: 2022
           triplet: x64-windows-static
 
-    name: static-windows-${{ matrix.msvc_version }}
+    name: static-windows-${{ matrix.msvc_version.year }}
 
     runs-on: windows-2022
 
