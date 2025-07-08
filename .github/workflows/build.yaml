@@ -60,6 +60,7 @@ jobs:
     - name: Export installed vcpkg packages
       run: >
         vcpkg export
+        --overlay-triplets=triplets
         --triplet ${{ matrix.msvc_version.triplet }}
         --x-all-installed
         --raw
@@ -145,6 +146,7 @@ jobs:
     - name: Export installed vcpkg packages
       run: >
         vcpkg export
+        --overlay-triplets=triplets
         --triplet ${{ matrix.msvc_version.triplet }}
         --x-all-installed
         --raw
