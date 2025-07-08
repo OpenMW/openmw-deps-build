@@ -60,6 +60,7 @@ jobs:
     - name: Export installed vcpkg packages
       run: >
         vcpkg export
+        --triplet ${{ matrix.msvc_version.triplet }}
         --x-all-installed
         --raw
         --output-dir ${{ github.workspace }}
@@ -144,6 +145,7 @@ jobs:
     - name: Export installed vcpkg packages
       run: >
         vcpkg export
+        --triplet ${{ matrix.msvc_version.triplet }}
         --x-all-installed
         --raw
         --output-dir ${{ github.workspace }}
