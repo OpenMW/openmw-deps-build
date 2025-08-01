@@ -9,7 +9,7 @@ env:
   VCPKG_REVISION: 137197a8f85e6c6cf1843ef024af7d9c28bb0bde
 
 jobs:
-  static:
+  static-windows:
     strategy:
       fail-fast: true
       matrix:
@@ -93,7 +93,7 @@ jobs:
         name: vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-${{ github.sha }}
         path: ${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-${{ github.sha }}.7z
 
-  dynamic:
+  dynamic-windows:
     strategy:
       fail-fast: true
       matrix:
@@ -193,9 +193,87 @@ jobs:
       working-directory: ${{ github.workspace }}/SymStore
       run: aws --endpoint-url https://rgw.ctrl-c.liu.se s3 sync --size-only --exclude * --include *.dl_ --include *.pd_ . s3://openmw-sym
 
+  dynamic-linux:
+    strategy:
+      fail-fast: true
+
+    runs-on: ubuntu-24.04
+
+    name: dynamic-linux
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - run: sudo apt update
+
+    - run: >
+        sudo apt install -y
+        autoconf-archive
+        libegl1-mesa-dev
+        libgl-dev
+        libibus-1.0-dev
+        libltdl-dev
+        libwayland-dev
+        libx11-dev
+        libxext-dev
+        libxft-dev
+        libxkbcommon-dev
+        nasm
+
+    - name: Export GitHub Actions cache environment variables
+      uses: actions/github-script@v6
+      with:
+        script: |
+          core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+    - uses: actions/checkout@v4
+      with:
+        repository: microsoft/vcpkg
+        ref: ${{ env.VCPKG_REVISION }}
+        path: vcpkg
+
+    - working-directory: vcpkg
+      run: git checkout ${{ env.VCPKG_REVISION }}
+
+    - working-directory: vcpkg
+      run: ./bootstrap-vcpkg.sh -disableMetrics
+
+    - name: Install vcpkg packages
+      run: >
+        vcpkg install --overlay-ports=ports --triplet x64-linux
+        boost-geometry
+        boost-iostreams
+        boost-program-options
+        bullet3[double-precision,multithreading]
+        ffmpeg
+        freetype
+        icu
+        luajit
+        lz4
+        mygui
+        openal-soft
+        openmw-osg
+        sdl2
+
+    - name: Export installed vcpkg packages
+      run: >
+        vcpkg export
+        --x-all-installed
+        --7zip
+        --output-dir ${{ github.workspace }}
+        --output vcpkg-x64-linux-${{ github.sha }}
+
+    - name: Store exported vcpkg packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: vcpkg-x64-linux-${{ github.sha }}
+        path: ${{ github.workspace }}/vcpkg-x64-linux-${{ github.sha }}.7z
+
   push-dynamic:
     needs:
-    - dynamic
+    - dynamic-windows
+    - dynamic-linux
 
     runs-on: ubuntu-latest
 
@@ -224,12 +302,15 @@ jobs:
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-${{ github.sha }}.7z vcpkg-x64-windows-2022-${{ env.file }}.7z
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2019-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2019-pdb-${{ env.file }}.7z
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2022-pdb-${{ env.file }}.7z
+        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-linux-${{ github.sha }}.7z vcpkg-x64-linux-${{ env.file }}.7z
 
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
-        files: vcpkg-x64-windows-*-${{ env.file }}.7z
+        files: |
+          vcpkg-x64-windows-*-${{ env.file }}.7z
+          vcpkg-x64-linux-${{ env.file }}.7z
 
     - name: Setup ssh-agent
       env:
@@ -285,13 +366,22 @@ jobs:
       if: ${{ env.SSH_PRIVATE_KEY == '' }}
       run: git clone https://gitlab.com/OpenMW/openmw-deps.git
 
-    - name: Generate files containing a download url and hash
+    - name: Generate files containing a download url and hash for windows
       run: |
-        for file in vcpkg-x64-windows-*-${{ env.file }}.7z; do
-          filename=`echo "$file" | sed -r 's/vcpkg-x64-windows-(.+)-${{ env.file }}.7z/vcpkg-x64-\1-${{ env.file }}.txt/'`
-          echo "${{ github.server_url }}/${{ github.repository }}/releases/download/${{ env.file }}/$file" > "openmw-deps/windows/$filename"
-          shasum -a 512 "$file" >> "openmw-deps/windows/$filename"
+        mkdir -p openmw-deps/windows
+        for src in vcpkg-x64-windows-*-${{ env.file }}.7z; do
+          dst=$(echo "${src:?}" | sed -r 's/vcpkg-x64-windows-(.+)-${{ env.file }}.7z/vcpkg-x64-\1-${{ env.file }}.txt/')
+          echo "${{ github.server_url }}/${{ github.repository }}/releases/download/${{ env.file }}/${src:?}" > "openmw-deps/windows/${dst:?}"
+          shasum -a 512 "${src:?}" >> "openmw-deps/windows/${dst:?}"
         done
+
+    - name: Generate files containing a download url and hash for linux
+      run: |
+        mkdir -p openmw-deps/linux
+        src=vcpkg-x64-linux-${{ env.file }}.7z
+        dst=vcpkg-x64-linux-${{ env.file }}.txt
+        echo "${{ github.server_url }}/${{ github.repository }}/releases/download/${{ env.file }}/${src}" > "openmw-deps/linux/${dst:?}"
+        shasum -a 512 "${src:?}" >> "openmw-deps/linux/${dst:?}"
 
     - name: Generate commit message
       env:
@@ -308,8 +398,9 @@ jobs:
     - name: Commit generated metadata
       working-directory: ${{ github.workspace }}/openmw-deps
       run: |
-        git checkout -b vcpkg-x64-windows-${{ github.sha }}
+        git checkout -b vcpkg-x64-${{ github.sha }}
         git add windows/vcpkg-x64-*-${{ env.file }}.txt
+        git add linux/vcpkg-x64-*-${{ env.file }}.txt
         git commit -F commit_message.txt
 
     - name: Verify commit to openmw-deps repository
@@ -325,4 +416,4 @@ jobs:
       working-directory: ${{ github.workspace }}/openmw-deps
       run: |
         git remote set-url --push origin "${{ vars.PUSH_URL }}"
-        git push origin vcpkg-x64-windows-${{ github.sha }}
+        git push origin vcpkg-x64-${{ github.sha }}
