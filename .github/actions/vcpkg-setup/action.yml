@@ -1,0 +1,17 @@
+name: vcpkg-setup
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: microsoft/vcpkg
+        ref: ${{ env.VCPKG_REVISION }}
+        path: vcpkg
+
+    - working-directory: vcpkg
+      run: git checkout ${{ env.VCPKG_REVISION }}
+      shell: bash
+
+    - working-directory: vcpkg
+      run: ./bootstrap-vcpkg.sh -disableMetrics
+      shell: bash

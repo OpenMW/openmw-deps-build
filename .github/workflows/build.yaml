@@ -9,7 +9,7 @@ env:
   VCPKG_REVISION: 137197a8f85e6c6cf1843ef024af7d9c28bb0bde
 
 jobs:
-  static:
+  static-windows:
     strategy:
       fail-fast: true
       matrix:
@@ -33,12 +33,7 @@ jobs:
           core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-    - name: Set up vcpkg
-      run: |
-        cd $Env:VCPKG_INSTALLATION_ROOT
-        git fetch
-        git checkout ${{ env.VCPKG_REVISION }}
-        ./bootstrap-vcpkg.bat -disableMetrics
+    - uses: ./.github/actions/vcpkg-setup
 
     - name: Install vcpkg packages
       run: >
@@ -93,7 +88,7 @@ jobs:
         name: vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-${{ github.sha }}
         path: ${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-${{ github.sha }}.7z
 
-  dynamic:
+  dynamic-windows:
     strategy:
       fail-fast: true
       matrix:
@@ -117,12 +112,7 @@ jobs:
           core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-    - name: Set up vcpkg
-      run: |
-        cd $Env:VCPKG_INSTALLATION_ROOT
-        git fetch
-        git checkout ${{ env.VCPKG_REVISION }}
-        ./bootstrap-vcpkg.bat -disableMetrics
+    - uses: ./.github/actions/vcpkg-setup
 
     - name: Install vcpkg packages
       run: >
@@ -193,9 +183,9 @@ jobs:
       working-directory: ${{ github.workspace }}/SymStore
       run: aws --endpoint-url https://rgw.ctrl-c.liu.se s3 sync --size-only --exclude * --include *.dl_ --include *.pd_ . s3://openmw-sym
 
-  push-dynamic:
+  upload-deps:
     needs:
-    - dynamic
+      - dynamic-windows
 
     runs-on: ubuntu-latest
 
@@ -229,7 +219,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
-        files: vcpkg-x64-windows-*-${{ env.file }}.7z
+        files: vcpkg-*-${{ env.file }}.7z
 
     - name: Setup ssh-agent
       env:
@@ -285,13 +275,10 @@ jobs:
       if: ${{ env.SSH_PRIVATE_KEY == '' }}
       run: git clone https://gitlab.com/OpenMW/openmw-deps.git
 
-    - name: Generate files containing a download url and hash
-      run: |
-        for file in vcpkg-x64-windows-*-${{ env.file }}.7z; do
-          filename=`echo "$file" | sed -r 's/vcpkg-x64-windows-(.+)-${{ env.file }}.7z/vcpkg-x64-\1-${{ env.file }}.txt/'`
-          echo "${{ github.server_url }}/${{ github.repository }}/releases/download/${{ env.file }}/$file" > "openmw-deps/windows/$filename"
-          shasum -a 512 "$file" >> "openmw-deps/windows/$filename"
-        done
+    - uses: ./.github/actions/manifest-setup
+      with:
+        file-pattern: vcpkg-x64-windows-*-${{ env.file }}
+        subdirectory: windows
 
     - name: Generate commit message
       env:
@@ -301,15 +288,15 @@ jobs:
         echo Add vcpkg package urls built at ${{ github.sha }} > commit_message.txt
         echo >> commit_message.txt
         printf 'Pushed by ' >> commit_message.txt
-        url=$(gh run --repo ${{ github.repository }} view ${{ github.run_id }} --json jobs --jq '.jobs[] | select(.name == "push-dynamic") | .url')
+        url=$(gh run --repo ${{ github.repository }} view ${{ github.run_id }} --json jobs --jq '.jobs[] | select(.name == "upload-deps") | .url')
         echo "${url:?}" >> commit_message.txt
         echo >> commit_message.txt
 
     - name: Commit generated metadata
       working-directory: ${{ github.workspace }}/openmw-deps
       run: |
-        git checkout -b vcpkg-x64-windows-${{ github.sha }}
-        git add windows/vcpkg-x64-*-${{ env.file }}.txt
+        git checkout -b vcpkg-${{ github.sha }}
+        git add windows/vcpkg-*-manifest.txt
         git commit -F commit_message.txt
 
     - name: Verify commit to openmw-deps repository
@@ -325,4 +312,4 @@ jobs:
       working-directory: ${{ github.workspace }}/openmw-deps
       run: |
         git remote set-url --push origin "${{ vars.PUSH_URL }}"
-        git push origin vcpkg-x64-windows-${{ github.sha }}
+        git push origin vcpkg-${{ github.sha }}
