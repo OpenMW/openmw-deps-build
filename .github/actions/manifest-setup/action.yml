@@ -1,0 +1,15 @@
+name: manifest-setup
+inputs:
+  file-pattern:
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate manifest file(s) for 7z archives
+      run: |
+        for file in ${{ inputs.file-pattern }}.7z; do
+          filename=$(echo "$file" | sed -r 's/\.7z$/\-manifest.txt/')
+          echo "${{ github.server_url }}/${{ github.repository }}/releases/download/${{ env.file }}/${file}" > "openmw-deps/$filename"
+          shasum -a 512 "$file" >> "openmw-deps/$filename"
+        done
+      shell: bash
