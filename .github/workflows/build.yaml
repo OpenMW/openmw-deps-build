@@ -38,19 +38,6 @@ jobs:
     - name: Install vcpkg packages
       run: >
         vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
-        boost-geometry
-        boost-iostreams
-        boost-program-options
-        bullet3[double-precision,multithreading]
-        ffmpeg
-        freetype
-        icu
-        luajit
-        lz4
-        mygui
-        openal-soft
-        openmw-osg
-        sdl2
 
     - name: Export installed vcpkg packages
       run: >
@@ -117,19 +104,6 @@ jobs:
     - name: Install vcpkg packages
       run: >
         vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
-        boost-geometry
-        boost-iostreams
-        boost-program-options
-        bullet3[double-precision,multithreading]
-        ffmpeg
-        freetype
-        icu
-        luajit
-        lz4
-        mygui
-        openal-soft
-        openmw-osg
-        sdl2
 
     - name: Export installed vcpkg packages
       run: >

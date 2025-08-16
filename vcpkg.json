@@ -1,0 +1,22 @@
+{
+  "dependencies": [
+    "boost-geometry",
+    "boost-iostreams",
+    "boost-program-options",
+    {
+      "name": "bullet3",
+      "features": [
+        "double-precision",
+        "multithreading"
+      ]
+    },
+    "ffmpeg",
+    "freetype",
+    "icu",
+    "luajit",
+    "lz4",
+    "mygui",
+    "openmw-osg",
+    "sdl2"
+  ]
+}
