@@ -9,6 +9,32 @@ env:
   VCPKG_REVISION: 84bab45d415d22042bd0b9081aea57f362da3f35
 
 jobs:
+  macos:
+    runs-on: macos-latest
+    env:
+      triplet: arm64-osx
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export GitHub Actions cache environment variables
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+      - uses: ./.github/actions/vcpkg-setup
+      - name: Install vcpkg packages
+        run: vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ env.triplet }}
+      - uses: ./.github/actions/vcpkg-export
+        with:
+          output-name: vcpkg-${{ env.triplet }}-${{ github.sha }}
+          export-type: 7zip
+
+      - name: Store exported vcpkg packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-${{ env.triplet }}-${{ github.sha }}
+          path: ${{ github.workspace }}/vcpkg-${{ env.triplet }}-${{ github.sha }}.7z
+
   static-windows:
     strategy:
       fail-fast: true
@@ -39,13 +65,10 @@ jobs:
       run: >
         vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
 
-    - name: Export installed vcpkg packages
-      run: >
-        vcpkg export
-        --x-all-installed
-        --raw
-        --output-dir ${{ github.workspace }}
-        --output intermediate
+    - uses: ./.github/actions/vcpkg-export
+      with:
+        output-name: intermediate
+        export-type: raw
 
     - name: Move pdb files
       working-directory: '${{ github.workspace }}/intermediate'
@@ -105,13 +128,10 @@ jobs:
       run: >
         vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
 
-    - name: Export installed vcpkg packages
-      run: >
-        vcpkg export
-        --x-all-installed
-        --raw
-        --output-dir ${{ github.workspace }}
-        --output intermediate
+    - uses: ./.github/actions/vcpkg-export
+      with:
+        output-name: intermediate
+        export-type: raw
 
     - name: Move pdb files
       working-directory: '${{ github.workspace }}/intermediate'
@@ -160,6 +180,7 @@ jobs:
   upload-deps:
     needs:
       - dynamic-windows
+      - macos
 
     runs-on: ubuntu-latest
 
@@ -188,6 +209,7 @@ jobs:
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-${{ github.sha }}.7z vcpkg-x64-windows-2022-${{ env.file }}.7z
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2019-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2019-pdb-${{ env.file }}.7z
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2022-pdb-${{ env.file }}.7z
+        mv vcpkg-arm64-osx-${{ github.sha }}/vcpkg-arm64-osx-${{ github.sha }}.7z vcpkg-arm64-osx-${{ env.file }}.7z
 
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
@@ -254,6 +276,11 @@ jobs:
         file-pattern: vcpkg-x64-windows-*-${{ env.file }}
         subdirectory: windows
 
+    - uses: ./.github/actions/manifest-setup
+      with:
+        file-pattern: vcpkg-arm64-osx-*-${{ env.file }}
+        subdirectory: macos
+
     - name: Generate commit message
       env:
         GH_TOKEN: ${{ github.token }}
@@ -271,6 +298,7 @@ jobs:
       run: |
         git checkout -b vcpkg-${{ github.sha }}
         git add windows/vcpkg-*-manifest.txt
+        git add macos/vcpkg-*-manifest.txt
         git commit -F commit_message.txt
 
     - name: Verify commit to openmw-deps repository
