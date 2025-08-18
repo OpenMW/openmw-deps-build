@@ -20,6 +20,8 @@ Also the following [**variable**](https://docs.github.com/en/actions/learn-githu
 
 * `PUSH_URL` with target SSH-based URL for `git push` command (e.g. `git@gitlab.com:OpenMW/openmw-deps.git` or your fork).
 
+Any pushes should create a branch/commit on the openmw-dep repo. However, the manifest file links will not work. You will need to create a tag/release for that to work.
+
 ## Testing OpenMW with MacOS
 
 1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx`
