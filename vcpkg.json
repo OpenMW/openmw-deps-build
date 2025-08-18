@@ -12,11 +12,30 @@
     },
     "ffmpeg",
     "freetype",
-    "icu",
+    {
+      "name": "icu",
+      "platform": "!osx"
+    },
     "luajit",
     "lz4",
-    "mygui",
+    {
+      "name": "mygui",
+      "platform": "!osx"
+    },
+    "openal-soft",
+    {
+      "name": "openmw-mygui-osx",
+      "platform": "osx"
+    },
     "openmw-osg",
-    "sdl2"
+    "sdl2",
+    {
+      "name": "recastnavigation",
+      "platform": "osx"
+    },
+    {
+      "name": "unshield",
+      "platform": "osx"
+    }
   ]
 }
