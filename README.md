@@ -1,7 +1,10 @@
 # openmw-deps-build
 
-This is a repository to host CI jobs to build dependencies for OpenMW to be cached as binary artifacts at https://gitlab.com/OpenMW/openmw-deps.
+This is a repository to host CI jobs to build dependencies for OpenMW via vcpkg to be cached as binary artifacts at [https://gitlab.com/OpenMW/openmw-deps](https://gitlab.com/OpenMW/openmw-deps).
+
 Jobs start automatically on push to master and automatically push archived artifacts to another git repository.
+
+## Secret Setup
 
 To make this work properly multiple [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) have to be configured:
 
@@ -12,3 +15,27 @@ To make this work properly multiple [secrets](https://docs.github.com/en/actions
 Also following [variables](https://docs.github.com/en/actions/learn-github-actions/variables) have to be set:
 
 * `PUSH_URL` with target SSH-based URL for `git push` command (e.g. `git@gitlab.com:OpenMW/openmw-deps.git`).
+
+## Testing OpenMW with MacOS
+
+1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx`
+1. `./vcpkg/vcpkg export --x-all-installed --raw --output vcpkg-macos-test --output-dir DIRECTORY`
+
+Then point `DEPENDENCIES_ROOT` in `before_script.macos.sh` in OpenMW to `/DIRECTORY/vcpkg-macos-test/installed/arm64-osx`. You will also need to change the options to:
+
+```
+declare -a CMAKE_CONF_OPTS=(
+-D CMAKE_PREFIX_PATH="$DEPENDENCIES_ROOT;$QT_PATH"
+-D CMAKE_C_COMPILER_LAUNCHER="$CCACHE_EXECUTABLE"
+-D CMAKE_CXX_COMPILER_LAUNCHER="$CCACHE_EXECUTABLE"
+-D CMAKE_CXX_FLAGS="-stdlib=libc++"
+-D CMAKE_C_COMPILER="clang"
+-D CMAKE_CXX_COMPILER="clang++"
+-D CMAKE_OSX_DEPLOYMENT_TARGET="15.6"
+-D OPENMW_USE_SYSTEM_RECASTNAVIGATION=TRUE
+-D collada_dom_DIR="$DEPENDENCIES_ROOT/share/collada-dom"
+-D OSGPlugins_LIB_DIR="$DEPENDENCIES_ROOT/lib/osgPlugins-3.6.5"
+-D ICU_ROOT="$ICU_PATH"
+-D OPENMW_OSX_DEPLOYMENT=TRUE
+)
+```
