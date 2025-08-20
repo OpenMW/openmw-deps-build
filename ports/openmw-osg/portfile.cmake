@@ -2,14 +2,22 @@ set(VCPKG_POLICY_DLLS_WITHOUT_EXPORTS enabled)
 
 set(OSG_VER 3.6.5)
 
+set(PATCHES "")
+
+if(VCPKG_TARGET_IS_OSX)
+  list(
+    APPEND PATCHES
+    "osg.patch"
+  )
+endif()
+
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO openmw/osg
     REF 61a4c88d5292ad693086826b9eaaf142466d05f9
     SHA512 037a7511317d56055784c00826f4cb5c2f7983d9cf45635f50cfb898529d42d4c3e5f8df66ac3a42792c41854cb39c20f3a1e5a790510c61563a00f19bb19293
     HEAD_REF 3.6
-    PATCHES
-      "osg.patch"
+    PATCHES ${PATCHES}
 )
 
 file(REMOVE
