@@ -1,0 +1,41 @@
+{
+  "dependencies": [
+    "boost-geometry",
+    "boost-iostreams",
+    "boost-program-options",
+    {
+      "name": "bullet3",
+      "features": [
+        "double-precision",
+        "multithreading"
+      ]
+    },
+    "ffmpeg",
+    "freetype",
+    {
+      "name": "icu",
+      "platform": "!osx"
+    },
+    "luajit",
+    "lz4",
+    {
+      "name": "mygui",
+      "platform": "!osx"
+    },
+    "openal-soft",
+    {
+      "name": "openmw-mygui-osx",
+      "platform": "osx"
+    },
+    "openmw-osg",
+    "sdl2",
+    {
+      "name": "recastnavigation",
+      "platform": "osx"
+    },
+    {
+      "name": "unshield",
+      "platform": "osx"
+    }
+  ]
+}
