@@ -278,7 +278,7 @@ jobs:
 
     - uses: ./.github/actions/manifest-setup
       with:
-        file-pattern: vcpkg-arm64-osx-*-${{ env.file }}
+        file-pattern: vcpkg-*-osx-${{ env.file }}
         subdirectory: macos
 
     - name: Generate commit message
