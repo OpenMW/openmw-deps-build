@@ -24,10 +24,10 @@ Any pushes should create a branch/commit on the openmw-dep repo. However, the ma
 
 ## Testing OpenMW with MacOS
 
-1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx`
-1. `./vcpkg/vcpkg export --x-all-installed --raw --output vcpkg-macos-test --output-dir DIRECTORY`
+1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx-dynamic`
+1. `vcpkg export --x-all-installed --raw --output vcpkg-macos-test --output-dir DIRECTORY`
 
-Then point `DEPENDENCIES_ROOT` in `before_script.macos.sh` in OpenMW to `/DIRECTORY/vcpkg-macos-test/installed/arm64-osx`. You will also need to change the options to:
+Then point `DEPENDENCIES_ROOT` in `before_script.macos.sh` in OpenMW to `/DIRECTORY/vcpkg-macos-test/installed/arm64-osx-dynamic`. You will also need to change the options to:
 
 ```
 declare -a CMAKE_CONF_OPTS=(
