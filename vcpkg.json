@@ -28,11 +28,8 @@
       "platform": "osx"
     },
     "openmw-osg",
+    "recastnavigation",
     "sdl2",
-    {
-      "name": "recastnavigation",
-      "platform": "osx"
-    },
     {
       "name": "unshield",
       "platform": "osx"
