@@ -4,6 +4,8 @@ This is a repository to host CI jobs to build dependencies for OpenMW via vcpkg 
 
 Jobs start automatically on push to master and automatically push archived artifacts to another git repository.
 
+[Vcpkg has system requirements](https://learn.microsoft.com/en-us/vcpkg/concepts/supported-hosts)
+
 ## Secret Setup in CI for Testing
 
 You can test the repo is working on your own fork using a deploy key and a gpg key you generate.
@@ -24,24 +26,31 @@ Any pushes should create a branch/commit on the openmw-dep repo. However, the ma
 
 ## Testing OpenMW with MacOS
 
+Note: needs autoconf-archive installed: `brew install autoconf-archive`
+
 1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx-dynamic`
 1. `vcpkg export --x-all-installed --raw --output vcpkg-macos-test --output-dir DIRECTORY`
 
-Then point `DEPENDENCIES_ROOT` in `before_script.macos.sh` in OpenMW to `/DIRECTORY/vcpkg-macos-test/installed/arm64-osx-dynamic`. You will also need to change the options to:
+You will need to change the variables towards the top of the file to:
+
+```
+DEPENDENCIES_ROOT_PATH="/DIRECTORY/vcpkg-macos-test"
+DEPENDENCIES_INSTALLED_PATH="$DEPENDENCIES_ROOT_PATH/installed/arm64-osx-dynamic"
+```
+
+You will also need to change the options to:
 
 ```
 declare -a CMAKE_CONF_OPTS=(
--D CMAKE_PREFIX_PATH="$DEPENDENCIES_ROOT;$QT_PATH"
--D CMAKE_C_COMPILER_LAUNCHER="$CCACHE_EXECUTABLE"
--D CMAKE_CXX_COMPILER_LAUNCHER="$CCACHE_EXECUTABLE"
+-D CMAKE_PREFIX_PATH="$DEPENDENCIES_INSTALLED_PATH;$QT_PATH"
+-D CMAKE_C_COMPILER_LAUNCHER="ccache"
+-D CMAKE_CXX_COMPILER_LAUNCHER="ccache"
 -D CMAKE_CXX_FLAGS="-stdlib=libc++"
 -D CMAKE_C_COMPILER="clang"
 -D CMAKE_CXX_COMPILER="clang++"
 -D CMAKE_OSX_DEPLOYMENT_TARGET="15.6"
 -D OPENMW_USE_SYSTEM_RECASTNAVIGATION=TRUE
--D collada_dom_DIR="$DEPENDENCIES_ROOT/share/collada-dom"
--D OSGPlugins_LIB_DIR="$DEPENDENCIES_ROOT/lib/osgPlugins-3.6.5"
--D ICU_ROOT="$ICU_PATH"
 -D OPENMW_OSX_DEPLOYMENT=TRUE
+-D collada_dom_DIR="$DEPENDENCIES_INSTALLED_PATH/share/collada-dom"
 )
 ```

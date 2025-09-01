@@ -12,10 +12,7 @@
     },
     "ffmpeg",
     "freetype",
-    {
-      "name": "icu",
-      "platform": "!osx"
-    },
+    "icu",
     "luajit",
     "lz4",
     {
