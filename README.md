@@ -24,14 +24,14 @@ Also the following [**variable**](https://docs.github.com/en/actions/learn-githu
 
 Any pushes should create a branch/commit on the openmw-dep repo. However, the manifest file links will not work. You will need to create a tag/release for that to work.
 
-## Testing OpenMW with MacOS
+## Testing OpenMW with MacOS (for building on arm64 for arm64)
 
-Note: needs autoconf-archive installed: `brew install autoconf-archive`
+You need to install the following: `brew install autoconf autoconf-archive automake`
 
 1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx-dynamic`
 1. `vcpkg export --x-all-installed --raw --output vcpkg-macos-test --output-dir DIRECTORY`
 
-You will need to change the variables towards the top of the file to:
+You will need to change the variables towards the top of the OpenMW `before_script.macos.sh` file to:
 
 ```
 DEPENDENCIES_ROOT_PATH="/DIRECTORY/vcpkg-macos-test"
