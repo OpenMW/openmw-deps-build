@@ -1,0 +1,28 @@
+name: vcpkg-export
+inputs:
+  export-type:
+    description: 'Either raw or 7zip'
+    required: true
+  output-name:
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Export installed vcpkg packages
+      run: >
+        vcpkg export
+        --x-all-installed
+        --raw
+        --output-dir ./
+        --output ${{ inputs.output-name }}
+      if: ${{ inputs.export-type == 'raw' }}
+      shell: bash
+    - name: Export installed vcpkg packages
+      run: >
+        vcpkg export
+        --x-all-installed
+        --7zip
+        --output-dir ./
+        --output ${{ inputs.output-name }}
+      if: ${{ inputs.export-type == '7zip' }}
+      shell: bash
