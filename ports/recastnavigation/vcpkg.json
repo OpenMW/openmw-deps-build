@@ -1,6 +1,6 @@
 {
   "name": "recastnavigation",
-  "version": "1.6.0-updated",
+  "version-string": "c393777d26d2ff6519ac23612abf8af42678c9dd",
   "port-version": 1,
   "homepage": "https://github.com/recastnavigation/recastnavigation",
   "dependencies": [
