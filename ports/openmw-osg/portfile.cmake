@@ -7,7 +7,7 @@ set(PATCHES "")
 if(VCPKG_TARGET_IS_OSX)
   list(
     APPEND PATCHES
-    "osg.patch"
+    "macos-dedicated-image-plugin.patch"
   )
 endif()
 
@@ -44,8 +44,6 @@ elseif(VCPKG_TARGET_IS_WINDOWS)
 elseif(VCPKG_TARGET_IS_OSX)
   list(
     APPEND OPTIONS
-    -DOSG_USE_FLOAT_MATRIX=ON
-    -DOSG_USE_FLOAT_PLANE=ON
     -DOSG_WINDOWING_SYSTEM=Cocoa
   )
 elseif(VCPKG_CROSSCOMPILING)
