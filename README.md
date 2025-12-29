@@ -35,22 +35,42 @@ You will need to change the variables towards the top of the OpenMW `before_scri
 
 ```
 DEPENDENCIES_ROOT_PATH="/DIRECTORY/vcpkg-macos-test"
-DEPENDENCIES_INSTALLED_PATH="$DEPENDENCIES_ROOT_PATH/installed/arm64-osx-dynamic"
 ```
 
-You will also need to change the options to:
+You will also need to change this:
 
+```bash
+if [[ "${MACOS_AMD64}" ]]; then
+    CMAKE_CONF_OPTS+=(
+        -D CMAKE_OSX_ARCHITECTURES="x86_64"
+    )
+fi
 ```
-declare -a CMAKE_CONF_OPTS=(
--D CMAKE_PREFIX_PATH="$DEPENDENCIES_INSTALLED_PATH;$QT_PATH"
--D CMAKE_C_COMPILER_LAUNCHER="ccache"
--D CMAKE_CXX_COMPILER_LAUNCHER="ccache"
--D CMAKE_CXX_FLAGS="-stdlib=libc++"
--D CMAKE_C_COMPILER="clang"
--D CMAKE_CXX_COMPILER="clang++"
--D CMAKE_OSX_DEPLOYMENT_TARGET="15.6"
--D OPENMW_USE_SYSTEM_RECASTNAVIGATION=TRUE
--D OPENMW_OSX_DEPLOYMENT=TRUE
--D collada_dom_DIR="$DEPENDENCIES_INSTALLED_PATH/share/collada-dom"
-)
+
+to:
+
+```bash
+if [[ "${MACOS_AMD64}" ]]; then
+    ICU_PATH=$(arch -x86_64 /usr/local/bin/brew --prefix icu4c)
+    OPENAL_PATH=$(arch -x86_64 /usr/local/bin/brew --prefix openal-soft)
+
+    CMAKE_CONF_OPTS+=(
+        -D CMAKE_OSX_ARCHITECTURES="x86_64"
+        -D CMAKE_PREFIX_PATH="$DEPENDENCIES_ROOT_PATH;$QT_PATH;$OPENAL_PATH"
+        -D Boost_INCLUDE_DIR="$DEPENDENCIES_ROOT_PATH/include"
+        -D OSGPlugins_LIB_DIR="$DEPENDENCIES_ROOT_PATH/lib/osgPlugins-3.6.5"
+        -D ICU_ROOT="$ICU_PATH"
+        -D CMAKE_OSX_DEPLOYMENT_TARGET="13.6"
+    )
+else
+    VCPKG_TARGET_TRIPLET="arm64-osx-dynamic"
+    DEPENDENCIES_INSTALLED_PATH="$DEPENDENCIES_ROOT_PATH/installed/$VCPKG_TARGET_TRIPLET"
+    CMAKE_CONF_OPTS+=(
+        -D CMAKE_PREFIX_PATH="$DEPENDENCIES_INSTALLED_PATH;$QT_PATH"
+        -D collada_dom_DIR="$DEPENDENCIES_INSTALLED_PATH/share/collada-dom"
+        -D CMAKE_OSX_DEPLOYMENT_TARGET="15.6"
+        -DVCPKG_TARGET_TRIPLET="$VCPKG_TARGET_TRIPLET"
+        -DCMAKE_TOOLCHAIN_FILE="$DEPENDENCIES_ROOT_PATH/scripts/buildsystems/vcpkg.cmake"
+    )
+fi
 ```
