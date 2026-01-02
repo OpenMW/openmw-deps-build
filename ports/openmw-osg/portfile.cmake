@@ -5,8 +5,9 @@ set(OSG_VER 3.6.5)
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO openmw/osg
-    REF 673f30ad3820faf2a5e901ffe403b5246b8918fe
-    SHA512 a75c5092f653d56ef216fd38eb84793816654bb16423bbb3b82c97d9ece98c72fcd8e30f109e5fa4563423c1b113ca1d790c5ab30803f6bfee48662d1e6ac9e8
+    REF ff19a67025d5f51cf56be7ab11b398ecd334c365
+    # https://github.com/openmw/osg/archive/ff19a67025d5f51cf56be7ab11b398ecd334c365.tar.gz
+    SHA512 0caa1ac9a50d1532439b4501899a8af13fbdf87a9be91dd12ddeec46efbef0171d986cc49485c8ac650d53230360bb46006a0e136a1607840a78bb0e26caf5b9
     HEAD_REF 3.6
 )
 
