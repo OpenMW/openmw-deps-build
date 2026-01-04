@@ -67,6 +67,8 @@ vcpkg_cmake_configure(
         -DBUILD_OSG_APPLICATIONS=OFF
         -DBUILD_OSG_EXAMPLES=OFF
         -DBUILD_DOCUMENTATION=OFF
+        # Used by https://github.com/microsoft/vcpkg/blob/84bab45d415d22042bd0b9081aea57f362da3f35/ports/ffmpeg/vcpkg-cmake-wrapper.cmake#L51
+        -DCMAKE_POLICY_DEFAULT_CMP0057=NEW
         ${OPTIONS}
     MAYBE_UNUSED_VARIABLES
         OSG_DETERMINE_WIN_VERSION
