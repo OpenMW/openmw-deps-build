@@ -37,7 +37,7 @@ jobs:
 
     - name: Install vcpkg packages
       run: >
-        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
+        ${{ github.workspace }}\vcpkg\vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
         boost-geometry
         boost-iostreams
         boost-program-options
@@ -54,7 +54,7 @@ jobs:
 
     - name: Export installed vcpkg packages
       run: >
-        vcpkg export
+        ${{ github.workspace }}\vcpkg\vcpkg export
         --x-all-installed
         --raw
         --output-dir ${{ github.workspace }}
@@ -116,7 +116,7 @@ jobs:
 
     - name: Install vcpkg packages
       run: >
-        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
+        ${{ github.workspace }}\vcpkg\vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
         boost-geometry
         boost-iostreams
         boost-program-options
@@ -133,7 +133,7 @@ jobs:
 
     - name: Export installed vcpkg packages
       run: >
-        vcpkg export
+        ${{ github.workspace }}\vcpkg\vcpkg export
         --x-all-installed
         --raw
         --output-dir ${{ github.workspace }}
