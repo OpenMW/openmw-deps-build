@@ -3,7 +3,7 @@ runs:
   using: 'composite'
   steps:
     - working-directory: ${{ env.VCPKG_INSTALLATION_ROOT }}
-      run: >
+      run: |
         git fetch
         git checkout ${{ env.VCPKG_REVISION }}
       shell: bash
