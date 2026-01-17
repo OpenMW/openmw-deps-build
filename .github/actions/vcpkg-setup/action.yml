@@ -2,12 +2,13 @@ name: vcpkg-setup
 runs:
   using: 'composite'
   steps:
-    - working-directory: ${{ env.VCPKG_INSTALLATION_ROOT }}
-      run: |
+    - run: |
+        cd $VCPKG_INSTALLATION_ROOT
         git fetch
         git checkout ${{ env.VCPKG_REVISION }}
       shell: bash
 
-    - working-directory: ${{ env.VCPKG_INSTALLATION_ROOT }}
-      run: ./bootstrap-vcpkg.sh -disableMetrics
+    - run: |
+        cd $VCPKG_INSTALLATION_ROOT
+        ./bootstrap-vcpkg.sh -disableMetrics
       shell: bash
