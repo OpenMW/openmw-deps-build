@@ -5,7 +5,7 @@ runs:
     - run: |
         cd $VCPKG_INSTALLATION_ROOT
         git fetch
-        git checkout ${{ env.VCPKG_REVISION }}
+        git reset --hard ${{ env.VCPKG_REVISION }}
       shell: bash
 
     - run: |
