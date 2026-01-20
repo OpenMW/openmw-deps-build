@@ -28,7 +28,7 @@ Any pushes should create a branch/commit on the openmw-dep repo. However, the ma
 
 You need to install the following: `brew install autoconf autoconf-archive automake`
 
-1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx-dynamic`
+1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx-dynamic --host-triplet arm64-osx-dynamic`
 1. `vcpkg export --x-all-installed --raw --output vcpkg-macos-test --output-dir DIRECTORY`
 
 You will need to change the variables towards the top of the OpenMW `before_script.macos.sh` file to:

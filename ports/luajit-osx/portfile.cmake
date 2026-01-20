@@ -18,9 +18,9 @@ if(NOT _copy_result EQUAL 0)
 vcpkg_cmake_get_vars(cmake_vars_file)
 include("${cmake_vars_file}")
 
-if(DEFINED CMAKE_OSX_DEPLOYMENT_TARGET)
-    message(STATUS "Setting MACOSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} for build")
-    set(ENV{MACOSX_DEPLOYMENT_TARGET} "${CMAKE_OSX_DEPLOYMENT_TARGET}")
+if(DEFINED VCPKG_OSX_DEPLOYMENT_TARGET)
+    message(STATUS "Setting MACOSX_DEPLOYMENT_TARGET=${VCPKG_OSX_DEPLOYMENT_TARGET} for build")
+    set(ENV{MACOSX_DEPLOYMENT_TARGET} "${VCPKG_OSX_DEPLOYMENT_TARGET}")
 endif()
 
 vcpkg_execute_required_process(
