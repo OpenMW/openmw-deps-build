@@ -13,14 +13,7 @@
     "ffmpeg",
     "freetype",
     "icu",
-    {
-      "name": "luajit",
-      "platform": "!osx"
-    },
-    {
-      "name": "luajit-osx",
-      "platform": "osx"
-    },
+    "luajit",
     "lz4",
     {
       "name": "mygui",
