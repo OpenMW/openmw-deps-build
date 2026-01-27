@@ -46,8 +46,6 @@ jobs:
       fail-fast: true
       matrix:
         msvc_version:
-        - year: 2019
-          triplet: x64-windows-2019-static
         - year: 2022
           triplet: x64-windows-static
 
@@ -109,8 +107,6 @@ jobs:
       fail-fast: true
       matrix:
         msvc_version:
-        - year: 2019
-          triplet: x64-windows-2019
         - year: 2022
           triplet: x64-windows
 
@@ -211,9 +207,7 @@ jobs:
 
     - name: Rename artifacts
       run: |
-        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2019-${{ github.sha }}.7z vcpkg-x64-windows-2019-${{ env.file }}.7z
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-${{ github.sha }}.7z vcpkg-x64-windows-2022-${{ env.file }}.7z
-        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2019-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2019-pdb-${{ env.file }}.7z
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2022-pdb-${{ env.file }}.7z
         mv vcpkg-arm64-osx-dynamic-${{ github.sha }}/vcpkg-arm64-osx-dynamic-${{ github.sha }}.7z vcpkg-arm64-osx-dynamic-${{ env.file }}.7z
 
