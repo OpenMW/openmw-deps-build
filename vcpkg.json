@@ -25,7 +25,6 @@
       "platform": "osx"
     },
     "openmw-osg",
-    "recastnavigation",
     "sdl2",
     {
       "name": "unshield",
