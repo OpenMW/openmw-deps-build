@@ -61,6 +61,7 @@ if [[ "${MACOS_AMD64}" ]]; then
         -D OSGPlugins_LIB_DIR="$DEPENDENCIES_ROOT_PATH/lib/osgPlugins-3.6.5"
         -D ICU_ROOT="$ICU_PATH"
         -D CMAKE_OSX_DEPLOYMENT_TARGET="13.6"
+        -D OPENMW_USE_SYSTEM_RECASTNAVIGATION=TRUE
     )
 else
     VCPKG_TARGET_TRIPLET="arm64-osx-dynamic"
@@ -73,4 +74,5 @@ else
         -DCMAKE_TOOLCHAIN_FILE="$DEPENDENCIES_ROOT_PATH/scripts/buildsystems/vcpkg.cmake"
     )
 fi
+
 ```
