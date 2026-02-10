@@ -24,55 +24,15 @@ Also the following [**variable**](https://docs.github.com/en/actions/learn-githu
 
 Any pushes should create a branch/commit on the openmw-dep repo. However, the manifest file links will not work. You will need to create a tag/release for that to work.
 
-## Testing OpenMW with MacOS (for building on arm64 for arm64)
+## MacOS Setup
 
 You need to install the following: `brew install autoconf autoconf-archive automake`
 
 1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx-dynamic --host-triplet arm64-osx-dynamic`
 1. `vcpkg export --x-all-installed --raw --output vcpkg-macos-test --output-dir DIRECTORY`
 
-You will need to change the variables towards the top of the OpenMW `before_script.macos.sh` file to:
+To test with OpenMW, you will need to change the `DEPENDENCIES_ROOT` on the top of the `before_script.macos.sh` in OpenMW file to:
 
 ```
 DEPENDENCIES_ROOT_PATH="/DIRECTORY/vcpkg-macos-test"
-```
-
-You will also need to change this:
-
-```bash
-if [[ "${MACOS_AMD64}" ]]; then
-    CMAKE_CONF_OPTS+=(
-        -D CMAKE_OSX_ARCHITECTURES="x86_64"
-    )
-fi
-```
-
-to:
-
-```bash
-if [[ "${MACOS_AMD64}" ]]; then
-    ICU_PATH=$(arch -x86_64 /usr/local/bin/brew --prefix icu4c)
-    OPENAL_PATH=$(arch -x86_64 /usr/local/bin/brew --prefix openal-soft)
-
-    CMAKE_CONF_OPTS+=(
-        -D CMAKE_OSX_ARCHITECTURES="x86_64"
-        -D CMAKE_PREFIX_PATH="$DEPENDENCIES_ROOT_PATH;$QT_PATH;$OPENAL_PATH"
-        -D Boost_INCLUDE_DIR="$DEPENDENCIES_ROOT_PATH/include"
-        -D OSGPlugins_LIB_DIR="$DEPENDENCIES_ROOT_PATH/lib/osgPlugins-3.6.5"
-        -D ICU_ROOT="$ICU_PATH"
-        -D CMAKE_OSX_DEPLOYMENT_TARGET="13.6"
-        -D OPENMW_USE_SYSTEM_RECASTNAVIGATION=TRUE
-    )
-else
-    VCPKG_TARGET_TRIPLET="arm64-osx-dynamic"
-    DEPENDENCIES_INSTALLED_PATH="$DEPENDENCIES_ROOT_PATH/installed/$VCPKG_TARGET_TRIPLET"
-    CMAKE_CONF_OPTS+=(
-        -D CMAKE_PREFIX_PATH="$DEPENDENCIES_INSTALLED_PATH;$QT_PATH"
-        -D collada_dom_DIR="$DEPENDENCIES_INSTALLED_PATH/share/collada-dom"
-        -DVCPKG_HOST_TRIPLET="$VCPKG_TARGET_TRIPLET"
-        -DVCPKG_TARGET_TRIPLET="$VCPKG_TARGET_TRIPLET"
-        -DCMAKE_TOOLCHAIN_FILE="$DEPENDENCIES_ROOT_PATH/scripts/buildsystems/vcpkg.cmake"
-    )
-fi
-
 ```
