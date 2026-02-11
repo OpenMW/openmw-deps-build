@@ -24,7 +24,7 @@ Also the following [**variable**](https://docs.github.com/en/actions/learn-githu
 
 Any pushes should create a branch/commit on the openmw-dep repo. However, the manifest file links will not work. You will need to create a tag/release for that to work.
 
-## MacOS Setup
+## ARM64 MacOS Setup
 
 You need to install the following: `brew install autoconf autoconf-archive automake`
 

@@ -31,6 +31,8 @@ jobs:
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - run: brew install autoconf autoconf-archive automake
+      - run: brew install nasm
+        if: ${{ matrix.args.triplet == 'x64-osx-dynamic' }}
 
       - uses: ./.github/actions/vcpkg-setup
 
