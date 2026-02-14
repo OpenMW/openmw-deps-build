@@ -57,17 +57,25 @@ jobs:
         args:
           - triplet: x64-windows-static
             runner_image: windows-2022
-            identifer: x64-windows-2022-static
+            identifier: x64-windows-2022-static
+            host_triplet: x64-windows-static
+
           - triplet: arm64-windows-static-md
-            runner_image: windows-11-arm
-            identifer: arm64-windows-static
+            runner_image: windows-2022
+            identifier: arm64-windows-2022-static
+            host_triplet: x64-windows-static
+
           - triplet: x64-windows
             runner_image: windows-2022
-            identifer: x64-windows-2022
+            identifier: x64-windows-2022
+            host_triplet: x64-windows
             store_symbols: true
+
           - triplet: arm64-windows
-            runner_image: windows-11-arm
-            identifer: arm64-windows
+            runner_image: windows-2022
+            identifier: arm64-windows-2022
+            host_triplet: x64-windows
+            store_symbols: true
 
     name: ${{ matrix.args.identifier }}
 
@@ -87,7 +95,7 @@ jobs:
 
     - name: Install vcpkg packages
       run: >
-        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.args.triplet }} --triplet ${{ matrix.args.triplet }}
+        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.args.host_triplet }} --triplet ${{ matrix.args.triplet }}
 
     - uses: ./.github/actions/vcpkg-export
       with:
@@ -109,7 +117,7 @@ jobs:
     - name: Store archived pdb files
       uses: actions/upload-artifact@v4
       with:
-        name: vcpkg-${{ matrix.version.identifier }}-pdb-${{ github.sha }}
+        name: vcpkg-${{ matrix.args.identifier }}-pdb-${{ github.sha }}
         path: ${{ github.workspace }}/vcpkg-${{ matrix.args.identifier }}-pdb-${{ github.sha }}.7z
 
     - name: Archive everything else
@@ -126,7 +134,7 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      if: ${{ matrix.args.upload_symbols == 'true' && matrix.args.upload_symbols && env.AWS_ACCESS_KEY_ID != '' && env.AWS_SECRET_ACCESS_KEY != '' }}
+      if: ${{ matrix.args.store_symbols && env.AWS_ACCESS_KEY_ID != '' && env.AWS_SECRET_ACCESS_KEY != '' }}
       run: .\Store-Symbols.ps1 ${{ github.workspace }}\intermediate
 
     - name: Upload symbols to symbol server
