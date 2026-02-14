@@ -24,15 +24,58 @@ Also the following [**variable**](https://docs.github.com/en/actions/learn-githu
 
 Any pushes should create a branch/commit on the openmw-dep repo. However, the manifest file links will not work. You will need to create a tag/release for that to work.
 
-## ARM64 MacOS Setup
+## Testing OpenMW with MacOS (for building on arm64 for arm64)
 
 You need to install the following: `brew install autoconf autoconf-archive automake`
 
 1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx-dynamic --host-triplet arm64-osx-dynamic`
 1. `vcpkg export --x-all-installed --raw --output vcpkg-macos-test --output-dir DIRECTORY`
 
-To test with OpenMW, you will need to change the `DEPENDENCIES_ROOT` on the top of the `before_script.macos.sh` in OpenMW file to:
+You will need to change the variables towards the top of the OpenMW `before_script.macos.sh` file to:
 
 ```
 DEPENDENCIES_ROOT_PATH="/DIRECTORY/vcpkg-macos-test"
+```
+
+You will also need to change this:
+
+```bash
+if [[ "${MACOS_AMD64}" ]]; then
+    CMAKE_CONF_OPTS+=(
+        -D CMAKE_OSX_ARCHITECTURES="x86_64"
+    )
+fi
+```
+
+to:
+
+```bash
+if [[ "${MACOS_AMD64}" ]]; then
+    VCPKG_TARGET_TRIPLET="x64-osx-dynamic"
+    CMAKE_CONF_OPTS+=(
+        -D CMAKE_OSX_ARCHITECTURES="x86_64"
+    )
+else
+    VCPKG_TARGET_TRIPLET="arm64-osx-dynamic"
+fi
+
+DEPENDENCIES_INSTALLED_PATH="$DEPENDENCIES_ROOT_PATH/installed/$VCPKG_TARGET_TRIPLET"
+
+CMAKE_CONF_OPTS+=(
+    -D CMAKE_PREFIX_PATH="$DEPENDENCIES_INSTALLED_PATH;$QT_PATH"
+    -D collada_dom_DIR="$DEPENDENCIES_INSTALLED_PATH/share/collada-dom"
+    -DVCPKG_HOST_TRIPLET="$VCPKG_TARGET_TRIPLET"
+    -DVCPKG_TARGET_TRIPLET="$VCPKG_TARGET_TRIPLET"
+    -DCMAKE_TOOLCHAIN_FILE="$DEPENDENCIES_ROOT_PATH/scripts/buildsystems/vcpkg.cmake"
+)
+```
+
+And you can update the path setting to just:
+
+```
+if [[ "${MACOS_AMD64}" ]]; then
+    QT_PATH=$(arch -x86_64 /bin/bash -c "qmake -v | sed -rn -e 's/Using Qt version [.0-9]+ in //p'")
+else
+    QT_PATH=$(qmake -v | sed -rn -e "s/Using Qt version [.0-9]+ in //p")
+fi
 ```
