@@ -10,9 +10,16 @@ env:
 
 jobs:
   macos:
-    runs-on: macos-latest
-    env:
-      triplet: arm64-osx-dynamic
+    strategy:
+      fail-fast: true
+      matrix:
+        args:
+          - triplet: arm64-osx-dynamic
+            runner_image: macos-15
+          - triplet: x64-osx-dynamic
+            runner_image: macos-15-intel
+    runs-on: ${{ matrix.args.runner_image }}
+    name: ${{ matrix.args.triplet }}
     steps:
       - uses: actions/checkout@v4
 
@@ -24,22 +31,24 @@ jobs:
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - run: brew install autoconf autoconf-archive automake
+      - run: brew install nasm
+        if: ${{ matrix.args.triplet == 'x64-osx-dynamic' }}
 
       - uses: ./.github/actions/vcpkg-setup
 
       - name: Install vcpkg packages
-        run: vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ env.triplet }} --host-triplet ${{ env.triplet }}
+        run: vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ matrix.args.triplet }} --host-triplet ${{ matrix.args.triplet }}
 
       - uses: ./.github/actions/vcpkg-export
         with:
-          output-name: vcpkg-${{ env.triplet }}-${{ github.sha }}
+          output-name: vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}
           export-type: 7zip
 
       - name: Store exported vcpkg packages
         uses: actions/upload-artifact@v4
         with:
-          name: vcpkg-${{ env.triplet }}-${{ github.sha }}
-          path: ${{ github.workspace }}/vcpkg-${{ env.triplet }}-${{ github.sha }}.7z
+          name: vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}
+          path: ${{ github.workspace }}/vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.7z
 
   static-windows:
     strategy:
@@ -210,6 +219,7 @@ jobs:
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-${{ github.sha }}.7z vcpkg-x64-windows-2022-${{ env.file }}.7z
         mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2022-pdb-${{ env.file }}.7z
         mv vcpkg-arm64-osx-dynamic-${{ github.sha }}/vcpkg-arm64-osx-dynamic-${{ github.sha }}.7z vcpkg-arm64-osx-dynamic-${{ env.file }}.7z
+        mv vcpkg-x64-osx-dynamic-${{ github.sha }}/vcpkg-x64-osx-dynamic-${{ github.sha }}.7z vcpkg-x64-osx-dynamic-${{ env.file }}.7z
 
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')

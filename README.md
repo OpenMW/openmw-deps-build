@@ -51,28 +51,31 @@ to:
 
 ```bash
 if [[ "${MACOS_AMD64}" ]]; then
-    ICU_PATH=$(arch -x86_64 /usr/local/bin/brew --prefix icu4c)
-    OPENAL_PATH=$(arch -x86_64 /usr/local/bin/brew --prefix openal-soft)
-
+    VCPKG_TARGET_TRIPLET="x64-osx-dynamic"
     CMAKE_CONF_OPTS+=(
         -D CMAKE_OSX_ARCHITECTURES="x86_64"
-        -D CMAKE_PREFIX_PATH="$DEPENDENCIES_ROOT_PATH;$QT_PATH;$OPENAL_PATH"
-        -D Boost_INCLUDE_DIR="$DEPENDENCIES_ROOT_PATH/include"
-        -D OSGPlugins_LIB_DIR="$DEPENDENCIES_ROOT_PATH/lib/osgPlugins-3.6.5"
-        -D ICU_ROOT="$ICU_PATH"
-        -D CMAKE_OSX_DEPLOYMENT_TARGET="13.6"
-        -D OPENMW_USE_SYSTEM_RECASTNAVIGATION=TRUE
     )
 else
     VCPKG_TARGET_TRIPLET="arm64-osx-dynamic"
-    DEPENDENCIES_INSTALLED_PATH="$DEPENDENCIES_ROOT_PATH/installed/$VCPKG_TARGET_TRIPLET"
-    CMAKE_CONF_OPTS+=(
-        -D CMAKE_PREFIX_PATH="$DEPENDENCIES_INSTALLED_PATH;$QT_PATH"
-        -D collada_dom_DIR="$DEPENDENCIES_INSTALLED_PATH/share/collada-dom"
-        -DVCPKG_HOST_TRIPLET="$VCPKG_TARGET_TRIPLET"
-        -DVCPKG_TARGET_TRIPLET="$VCPKG_TARGET_TRIPLET"
-        -DCMAKE_TOOLCHAIN_FILE="$DEPENDENCIES_ROOT_PATH/scripts/buildsystems/vcpkg.cmake"
-    )
 fi
 
+DEPENDENCIES_INSTALLED_PATH="$DEPENDENCIES_ROOT_PATH/installed/$VCPKG_TARGET_TRIPLET"
+
+CMAKE_CONF_OPTS+=(
+    -D CMAKE_PREFIX_PATH="$DEPENDENCIES_INSTALLED_PATH;$QT_PATH"
+    -D collada_dom_DIR="$DEPENDENCIES_INSTALLED_PATH/share/collada-dom"
+    -DVCPKG_HOST_TRIPLET="$VCPKG_TARGET_TRIPLET"
+    -DVCPKG_TARGET_TRIPLET="$VCPKG_TARGET_TRIPLET"
+    -DCMAKE_TOOLCHAIN_FILE="$DEPENDENCIES_ROOT_PATH/scripts/buildsystems/vcpkg.cmake"
+)
+```
+
+And you can update the path setting to just:
+
+```
+if [[ "${MACOS_AMD64}" ]]; then
+    QT_PATH=$(arch -x86_64 /bin/bash -c "qmake -v | sed -rn -e 's/Using Qt version [.0-9]+ in //p'")
+else
+    QT_PATH=$(qmake -v | sed -rn -e "s/Using Qt version [.0-9]+ in //p")
+fi
 ```
