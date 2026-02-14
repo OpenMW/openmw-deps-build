@@ -15,10 +15,10 @@ jobs:
       matrix:
         args:
           - triplet: arm64-osx-dynamic
-            os: macos-15
+            runner_image: macos-15
           - triplet: x64-osx-dynamic
-            os: macos-15-intel
-    runs-on: ${{ matrix.args.os }}
+            runner_image: macos-15-intel
+    runs-on: ${{ matrix.args.runner_image }}
     name: ${{ matrix.args.triplet }}
     steps:
       - uses: actions/checkout@v4
