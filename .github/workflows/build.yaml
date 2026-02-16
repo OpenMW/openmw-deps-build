@@ -174,10 +174,10 @@ jobs:
 
     - name: Rename artifacts
       run: |
-        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-${{ github.sha }}.7z vcpkg-x64-windows-2022-${{ env.file }}.7z
-        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2022-pdb-${{ env.file }}.7z
-        mv vcpkg-arm64-*-${{ github.sha }}/vcpkg-arm64-windows-${{ github.sha }}.7z vcpkg-arm64-windows-${{ env.file }}.7z
-        mv vcpkg-arm64-*-${{ github.sha }}/vcpkg-arm64-windows-pdb-${{ github.sha }}.7z vcpkg-arm64-windows-pdb-${{ env.file }}.7z
+        mv vcpkg-x64-windows-2022-${{ github.sha }}/vcpkg-x64-windows-2022-${{ github.sha }}.7z vcpkg-x64-windows-2022-${{ env.file }}.7z
+        mv vcpkg-x64-windows-2022-pdb-${{ github.sha }}/vcpkg-x64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2022-pdb-${{ env.file }}.7z
+        mv vcpkg-arm64-windows-2022-${{ github.sha }}/vcpkg-arm64-windows-2022-${{ github.sha }}.7z vcpkg-arm64-windows-2022-${{ env.file }}.7z
+        mv vcpkg-arm64-windows-2022-${{ github.sha }}/vcpkg-arm64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-arm64-windows-2022-pdb-${{ env.file }}.7z
         mv vcpkg-arm64-osx-dynamic-${{ github.sha }}/vcpkg-arm64-osx-dynamic-${{ github.sha }}.7z vcpkg-arm64-osx-dynamic-${{ env.file }}.7z
         mv vcpkg-x64-osx-dynamic-${{ github.sha }}/vcpkg-x64-osx-dynamic-${{ github.sha }}.7z vcpkg-x64-osx-dynamic-${{ env.file }}.7z
 
