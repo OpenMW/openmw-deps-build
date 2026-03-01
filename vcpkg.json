@@ -25,7 +25,10 @@
       "platform": "osx"
     },
     "openmw-osg",
-    "sdl2",
+     {
+      "name": "sdl2",
+      "features": []
+    },
     {
       "name": "unshield",
       "platform": "osx"
