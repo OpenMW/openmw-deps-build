@@ -27,6 +27,12 @@ jobs:
           autoconf-archive
           libgl-dev
           libltdl-dev
+          libegl1-mesa-dev
+          libx11-dev
+          libxft-dev
+          libxext-dev
+          libxkbcommon-dev
+          libwayland-dev
           nasm
 
       - name: Export GitHub Actions cache environment variables
