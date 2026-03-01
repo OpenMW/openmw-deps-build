@@ -9,6 +9,55 @@ env:
   VCPKG_REVISION: 6d332a018c433fad20822ff4b536e4ccdc3413bd
 
 jobs:
+  linux:
+    strategy:
+      fail-fast: true
+      matrix:
+        args:
+          - triplet: x64-linux
+            runner_image: ubuntu-22.04
+
+    runs-on: ${{ matrix.args.runner_image }}
+    name: ${{ matrix.args.triplet }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt update
+      - run: >
+          sudo apt install -y
+          autoconf-archive
+          libgl-dev
+          libltdl-dev
+          libegl1-mesa-dev
+          libx11-dev
+          libxft-dev
+          libxext-dev
+          libxkbcommon-dev
+          libwayland-dev
+          nasm
+
+      - name: Export GitHub Actions cache environment variables
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - uses: ./.github/actions/vcpkg-setup
+
+      - name: Install vcpkg packages
+        run: vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ matrix.args.triplet }} --host-triplet ${{ matrix.args.triplet }}
+
+      - uses: ./.github/actions/vcpkg-export
+        with:
+          output-name: vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}
+          export-type: 7zip
+
+      - name: Store exported vcpkg packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}
+          path: ${{ github.workspace }}/vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.7z
+
   macos:
     strategy:
       fail-fast: true
@@ -150,6 +199,7 @@ jobs:
     needs:
       - windows
       - macos
+      - linux
 
     runs-on: ubuntu-latest
 
@@ -180,6 +230,7 @@ jobs:
         mv vcpkg-arm64-windows-2022-pdb-${{ github.sha }}/vcpkg-arm64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-arm64-windows-2022-pdb-${{ env.file }}.7z
         mv vcpkg-arm64-osx-dynamic-${{ github.sha }}/vcpkg-arm64-osx-dynamic-${{ github.sha }}.7z vcpkg-arm64-osx-dynamic-${{ env.file }}.7z
         mv vcpkg-x64-osx-dynamic-${{ github.sha }}/vcpkg-x64-osx-dynamic-${{ github.sha }}.7z vcpkg-x64-osx-dynamic-${{ env.file }}.7z
+        mv vcpkg-x64-linux-${{ github.sha }}/vcpkg-x64-linux-${{ github.sha }}.7z vcpkg-x64-linux-${{ env.file }}.7z
 
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
@@ -251,6 +302,11 @@ jobs:
         file-pattern: vcpkg-*-osx-dynamic-${{ env.file }}
         subdirectory: macos
 
+    - uses: ./.github/actions/manifest-setup
+      with:
+        file-pattern: vcpkg-*-linux-${{ env.file }}
+        subdirectory: linux
+
     - name: Generate commit message
       env:
         GH_TOKEN: ${{ github.token }}
@@ -269,6 +325,7 @@ jobs:
         git checkout -b vcpkg-${{ github.sha }}
         git add windows/vcpkg-*-manifest.txt
         git add macos/vcpkg-*-manifest.txt
+        git add linux/vcpkg-*-manifest.txt
         git commit -F commit_message.txt
 
     - name: Verify commit to openmw-deps repository
