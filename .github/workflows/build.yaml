@@ -15,7 +15,7 @@ jobs:
       matrix:
         args:
           - triplet: x64-linux
-            runner_image: ubuntu-22.04
+            runner_image: ubuntu-24.04
 
     runs-on: ${{ matrix.args.runner_image }}
     name: ${{ matrix.args.triplet }}
