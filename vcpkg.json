@@ -17,12 +17,12 @@
     "lz4",
     {
       "name": "mygui",
-      "platform": "!osx"
+      "platform": "!osx and !linux"
     },
     "openal-soft",
     {
       "name": "openmw-mygui-osx",
-      "platform": "osx"
+      "platform": "osx|linux"
     },
     "openmw-osg",
     {
