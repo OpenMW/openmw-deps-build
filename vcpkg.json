@@ -8,7 +8,8 @@
       "features": [
         "double-precision",
         "multithreading"
-      ]
+      ],
+      "platform": "!linux"
     },
     "ffmpeg",
     "freetype",
@@ -22,7 +23,7 @@
     "openal-soft",
     {
       "name": "openmw-mygui-osx",
-      "platform": "osx|linux"
+      "platform": "osx"
     },
     "openmw-osg",
     {
