@@ -42,7 +42,7 @@
     },
     {
       "name": "unshield",
-      "platform": "osx"
+      "platform": "osx|linux"
     }
   ]
 }
