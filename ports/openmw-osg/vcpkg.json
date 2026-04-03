@@ -1,7 +1,7 @@
 {
   "name": "openmw-osg",
   "version-date": "2026-01-30",
-  "port-version": 0,
+  "port-version": 1,
   "description": "Fork of OpenSceneGraph for OpenMW-specific performance improvements.",
   "homepage": "https://github.com/openmw/osg",
   "license": null,
@@ -9,11 +9,23 @@
   "dependencies": [
     "collada-dom",
     "freetype",
+    {
+      "name": "fontconfig",
+      "platform": "linux"
+    },
     "libiconv",
     "libjpeg-turbo",
     "libpng",
     "libxml2",
+    {
+      "name": "lz4",
+      "platform": "linux"
+    },
     "opengl-registry",
+    {
+      "name": "sdl2",
+      "platform": "linux"
+    },
     "tiff",
     "zlib",
     {
