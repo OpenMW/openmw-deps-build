@@ -15,6 +15,9 @@ This is a repository to host CI jobs to build dependencies for OpenMW via vcpkg 
 
 In CI, we build using almalinux for maximum distro compatibility. If you are not on almalinux, you can run the commands that are done in the [./.github/workflows/build.yaml](./.github/workflows/build.yaml) under the linux matrix in a Dockerfile or distrobox that pulls from `almalinux:9` and then install vcpkg and the dependencies listed in the CI and then proceed with the core vcpkg commands with the `x64-linux-dynamic` triplet.
 
+There's also a Docker Compose container definition in `docker/generic-linux-deps` that should run the setup commands for you.
+There's a readme in that directory explaining what to do.
+
 ### MacOS
 
 You need to install the following: `brew install autoconf autoconf-archive automake`
@@ -54,7 +57,7 @@ To make this work properly multiple [**secrets**](https://docs.github.com/en/act
   * You should use a deploy key setup on your fork of [https://gitlab.com/OpenMW/openmw-dep](https://gitlab.com/OpenMW/openmw-dep)
 * `GPG_PRIVATE_KEY` with private GPG key to sign commits with GPG signature (e.g. generated with `gpg --full-generate-key`).
 * `GPG_PRIVATE_KEY_PASSPHRASE` a passphrase for the `GPG_PRIVATE_KEY` to make it possible to use the GPG key (e.g. the value used during `gpg --full-generate-key`).
-  * You can generate a gpg key with the git author information used in CI. It does not need to be associated with any account.
+  * You **must** generate a gpg key with the git author information used in CI, i.e. `openmw-deps-build@users.noreply.github.com`. It does not need to be associated with any account.
 
 Also the following [**variable**](https://docs.github.com/en/actions/learn-github-actions/variables) has to be set:
 
