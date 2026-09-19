@@ -53,7 +53,6 @@ services:
         ENV PATH="$$VCPKG_INSTALLATION_ROOT:$$PATH"
         ENV VCPKG_REVISION=6d332a018c433fad20822ff4b536e4ccdc3413bd
         RUN <<EOF
-            mkdir "$$VCPKG_INSTALLATION_ROOT"
             git clone https://github.com/microsoft/vcpkg.git "$$VCPKG_INSTALLATION_ROOT"
             cd "$$VCPKG_INSTALLATION_ROOT"
             git fetch

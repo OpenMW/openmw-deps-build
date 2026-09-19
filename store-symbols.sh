@@ -51,7 +51,7 @@ for i in "${archives[@]}"; do
         tar -xf "$i" -C "$temp_dir"
         process_directory "$temp_dir"
         rm -f "$i"
-        tar -cf "$i" -C "$temp_dir" .
+        tar -caf "$i" -C "$temp_dir" .
     elif [[ -d $i ]]; then
         echo Dir $i
         process_directory "$i"

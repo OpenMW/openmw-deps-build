@@ -110,7 +110,7 @@ jobs:
         if: ${{ env.AWS_ACCESS_KEY_ID != '' && env.AWS_SECRET_ACCESS_KEY != '' }}
         run: ./store-symbols.sh -a $GITHUB_WORKSPACE/vcpkg-export
 
-      - run: tar -cf vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.tar.xz vcpkg-export/
+      - run: tar -caf vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.tar.xz vcpkg-export/
 
       - name: Store exported vcpkg packages
         uses: actions/upload-artifact@v4
