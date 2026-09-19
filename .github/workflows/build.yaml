@@ -5,10 +5,130 @@ on:
 - pull_request
 
 env:
-  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   VCPKG_REVISION: 6d332a018c433fad20822ff4b536e4ccdc3413bd
 
 jobs:
+  linux:
+    strategy:
+      fail-fast: true
+      matrix:
+        args:
+          - triplet: x64-linux-dynamic
+            runner_image: ubuntu-latest
+          - triplet: arm64-linux-dynamic
+            runner_image: ubuntu-24.04-arm
+    runs-on: ${{ matrix.args.runner_image }}
+    container:
+      image: almalinux:9
+    name: ${{ matrix.args.triplet }}
+    env:
+      binary_cache_path: /vcpkg-binary-cache/
+      VCPKG_BINARY_SOURCES: "clear;files,/vcpkg-binary-cache/,readwrite"
+      VCPKG_INSTALLATION_ROOT: /vcpkg
+      BUILD_AUTOCONF_SHA512: 3f71d459e2127ef2c98b37f11f5284f0c92318ad8d31c5b6034bed370adfe9f3d0f7a12f87e2efced06c11e2a159de4d4a292b751104e83daf11342f25ba9721
+    steps:
+      - run: dnf clean all
+      - run: dnf install -y git epel-release dnf-plugins-core
+      - run: dnf config-manager --set-enabled crb
+      - name: Install deps
+        run: >-
+          dnf install -y cmake
+          autoconf
+          autoconf-archive
+          automake
+          libtool
+          pkgconfig
+          mesa-libGL-devel
+          mesa-libEGL-devel
+          libX11-devel
+          libXcursor-devel
+          libXft-devel
+          libXext-devel
+          libXrandr-devel
+          libxkbcommon-devel
+          wayland-devel
+          gettext-devel
+          kernel-headers
+          ninja-build
+          gcc-toolset-13
+          texinfo
+          nasm
+          unzip
+          zip
+          tar
+          perl
+
+      - name: Cache autoconf
+        uses: actions/cache@v5
+        with:
+          path: /usr/local/
+          key: autoconf-cache-${{ env.BUILD_AUTOCONF_SHA512 }}-${{ runner.arch }}
+
+      - run: |
+          if [[ ! -f /usr/local/bin/autoconf ]]; then
+            tmpdir="$(mktemp -d)"
+            tarball="$tmpdir/autoconf.tar.gz"
+            curl -L https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.gz -o "$tarball"
+            printf '%s  %s\n' "$BUILD_AUTOCONF_SHA512" "$tarball" | sha512sum -c -
+            tar xf "$tarball" -C "$tmpdir"
+            cd "$tmpdir/autoconf-2.72"
+            ./configure --prefix=/usr/local
+            make && make install
+            rm -rf "$tmpdir"
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Export GitHub Actions cache environment variables
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+      - uses: ./.github/actions/vcpkg-setup
+        with:
+          install-vcpkg: true
+
+      - name: Cache Binaries
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.binary_cache_path }}
+          key: vcpkg-binary-cache-${{ matrix.args.triplet }}
+
+      - name: Install vcpkg packages
+        run: source /opt/rh/gcc-toolset-13/enable && vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ matrix.args.triplet }} --host-triplet ${{ matrix.args.triplet }}
+
+      - uses: ./.github/actions/vcpkg-export
+        with:
+          output-name: vcpkg-export
+          export-type: raw
+
+      - name: Repackage binaries for debuginfod server
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        if: ${{ env.AWS_ACCESS_KEY_ID != '' && env.AWS_SECRET_ACCESS_KEY != '' }}
+        run: ./store-symbols.sh -a $GITHUB_WORKSPACE/vcpkg-export
+
+      - run: tar -caf vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.tar.xz vcpkg-export/
+
+      - name: Store exported vcpkg packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}
+          path: ${{ github.workspace }}/vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.tar.xz
+
+      - name: Upload symbols to debuginfod server
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: eu-west-3
+        if: ${{ env.AWS_ACCESS_KEY_ID != '' && env.AWS_SECRET_ACCESS_KEY != '' }}
+        working-directory: ${{ github.workspace }}/SymStore
+        run: |
+          dnf install -y awscli2
+          aws --endpoint-url https://rgw.ctrl-c.liu.se s3 sync --size-only . s3://openmw-sym
+
   macos:
     strategy:
       fail-fast: true
@@ -20,6 +140,9 @@ jobs:
             runner_image: macos-15-intel
     runs-on: ${{ matrix.args.runner_image }}
     name: ${{ matrix.args.triplet }}
+    env:
+      binary_cache_path: /Users/Shared/vcpkg-binary-cache/
+      VCPKG_BINARY_SOURCES: "clear;files,/Users/Shared/vcpkg-binary-cache/,readwrite"
     steps:
       - uses: actions/checkout@v4
 
@@ -35,6 +158,12 @@ jobs:
         if: ${{ matrix.args.triplet == 'x64-osx-dynamic' }}
 
       - uses: ./.github/actions/vcpkg-setup
+
+      - name: Cache Binaries
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.binary_cache_path }}
+          key: vcpkg-binary-cache-${{ matrix.args.triplet }}
 
       - name: Install vcpkg packages
         run: vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ matrix.args.triplet }} --host-triplet ${{ matrix.args.triplet }}
@@ -80,6 +209,9 @@ jobs:
     name: ${{ matrix.args.identifier }}
 
     runs-on: ${{ matrix.args.runner_image }}
+    env:
+      binary_cache_path: 'C:\vcpkg-binary-cache\'
+      VCPKG_BINARY_SOURCES: 'clear;files,C:\vcpkg-binary-cache\,readwrite'
 
     steps:
     - uses: actions/checkout@v4
@@ -92,6 +224,12 @@ jobs:
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
     - uses: ./.github/actions/vcpkg-setup
+
+    - name: Cache Binaries
+      uses: actions/cache@v5
+      with:
+        path: ${{ env.binary_cache_path }}
+        key: vcpkg-binary-cache-${{ matrix.args.triplet }}
 
     - name: Install vcpkg packages
       run: >
@@ -150,11 +288,13 @@ jobs:
     needs:
       - windows
       - macos
+      - linux
 
     runs-on: ubuntu-latest
 
     env:
-      file: TEST
+      file: TEST-${{ github.sha }}
+      branch: vcpkg-${{ github.sha }}
 
     permissions:
       contents: write
@@ -170,7 +310,9 @@ jobs:
 
     - name: Set file name
       if: startsWith(github.ref, 'refs/tags/')
-      run: echo "file=${{ github.ref_name }}" >> "$GITHUB_ENV"
+      run: |
+        echo "file=${{ github.ref_name }}" >> "$GITHUB_ENV"
+        echo "branch=vcpkg-${{ github.ref_name }}" >> "$GITHUB_ENV"
 
     - name: Rename artifacts
       run: |
@@ -180,12 +322,16 @@ jobs:
         mv vcpkg-arm64-windows-2022-pdb-${{ github.sha }}/vcpkg-arm64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-arm64-windows-2022-pdb-${{ env.file }}.7z
         mv vcpkg-arm64-osx-dynamic-${{ github.sha }}/vcpkg-arm64-osx-dynamic-${{ github.sha }}.7z vcpkg-arm64-osx-dynamic-${{ env.file }}.7z
         mv vcpkg-x64-osx-dynamic-${{ github.sha }}/vcpkg-x64-osx-dynamic-${{ github.sha }}.7z vcpkg-x64-osx-dynamic-${{ env.file }}.7z
+        mv vcpkg-x64-linux-dynamic-${{ github.sha }}/vcpkg-x64-linux-dynamic-${{ github.sha }}.tar.xz vcpkg-x64-linux-dynamic-${{ env.file }}.tar.xz
+        mv vcpkg-arm64-linux-dynamic-${{ github.sha }}/vcpkg-arm64-linux-dynamic-${{ github.sha }}.tar.xz vcpkg-arm64-linux-dynamic-${{ env.file }}.tar.xz
 
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
-        files: vcpkg-*-${{ env.file }}.7z
+        files: |
+          vcpkg-*-${{ env.file }}.7z
+          vcpkg-*-${{ env.file }}.tar.xz
 
     - name: Setup ssh-agent
       env:
@@ -251,6 +397,11 @@ jobs:
         file-pattern: vcpkg-*-osx-dynamic-${{ env.file }}
         subdirectory: macos
 
+    - uses: ./.github/actions/manifest-setup
+      with:
+        file-pattern: vcpkg-*-linux-dynamic-${{ env.file }}
+        subdirectory: linux
+
     - name: Generate commit message
       env:
         GH_TOKEN: ${{ github.token }}
@@ -266,9 +417,10 @@ jobs:
     - name: Commit generated metadata
       working-directory: ${{ github.workspace }}/openmw-deps
       run: |
-        git checkout -b vcpkg-${{ github.sha }}
+        git checkout -b ${{ env.branch }}
         git add windows/vcpkg-*-manifest.txt
         git add macos/vcpkg-*-manifest.txt
+        git add linux/vcpkg-*-manifest.txt
         git commit -F commit_message.txt
 
     - name: Verify commit to openmw-deps repository
@@ -284,4 +436,4 @@ jobs:
       working-directory: ${{ github.workspace }}/openmw-deps
       run: |
         git remote set-url --push origin "${{ vars.PUSH_URL }}"
-        git push origin vcpkg-${{ github.sha }}
+        git push origin ${{ env.branch }}
