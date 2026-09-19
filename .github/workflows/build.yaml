@@ -141,8 +141,8 @@ jobs:
     runs-on: ${{ matrix.args.runner_image }}
     name: ${{ matrix.args.triplet }}
     env:
-      binary_cache_path: /vcpkg-binary-cache/
-      VCPKG_BINARY_SOURCES: "clear;files,/vcpkg-binary-cache/,readwrite"
+      binary_cache_path: /Users/Shared/vcpkg-binary-cache/
+      VCPKG_BINARY_SOURCES: "clear;files,/Users/Shared/vcpkg-binary-cache/,readwrite"
     steps:
       - uses: actions/checkout@v4
 
