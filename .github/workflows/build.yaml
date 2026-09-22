@@ -6,7 +6,7 @@ on:
 
 env:
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
-  VCPKG_REVISION: 6d332a018c433fad20822ff4b536e4ccdc3413bd
+  VCPKG_REVISION: aae277acf4e7de287ddb5e208b5316614de6aad7
 
 jobs:
   macos:

@@ -6,9 +6,5 @@ runs:
         cd $VCPKG_INSTALLATION_ROOT
         git fetch
         git reset --hard ${{ env.VCPKG_REVISION }}
-      shell: bash
-
-    - run: |
-        cd $VCPKG_INSTALLATION_ROOT
         ./bootstrap-vcpkg.sh -disableMetrics
       shell: bash

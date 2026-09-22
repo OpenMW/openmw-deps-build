@@ -31,8 +31,4 @@ You need to install the following: `brew install autoconf autoconf-archive autom
 1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx-dynamic --host-triplet arm64-osx-dynamic`
 1. `vcpkg export --x-all-installed --raw --output vcpkg-macos-test --output-dir DIRECTORY`
 
-You will need to change the variables towards the top of the OpenMW `before_script.macos.sh` file to:
-
-```
-DEPENDENCIES_ROOT_PATH="/DIRECTORY/vcpkg-macos-test"
-```
+To use it in OpenMW building, merely pass the full path directory to the `before_script.macos.sh` file as `-d DIR`.

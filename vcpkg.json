@@ -16,19 +16,32 @@
     "luajit",
     "lz4",
     {
+      "name": "msdfgen",
+      "default-features": false,
+      "features": [
+        "extensions"
+      ]
+    },
+    {
       "name": "mygui",
-      "platform": "!osx"
+      "version>=": "3.5.1",
+      "features": [
+        "msdf"
+      ]
     },
     "openal-soft",
-    {
-      "name": "openmw-mygui-osx",
-      "platform": "osx"
-    },
     "openmw-osg",
     "sdl2",
     {
       "name": "unshield",
       "platform": "osx"
+    }
+  ],
+  "builtin-baseline": "aae277acf4e7de287ddb5e208b5316614de6aad7",
+  "overrides": [
+    {
+      "name": "mygui",
+      "version": "3.5.1"
     }
   ]
 }
