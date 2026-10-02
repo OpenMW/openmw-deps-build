@@ -1,0 +1,69 @@
+services:
+  generic-linux-deps-build-container:
+    build:
+      dockerfile_inline: |
+        FROM almalinux:9
+        RUN dnf clean all
+        RUN dnf install -y git epel-release dnf-plugins-core
+        RUN dnf config-manager --set-enabled crb
+        RUN <<EOF
+            packages=(
+              cmake
+              autoconf
+              autoconf-archive
+              automake
+              libtool
+              pkgconfig
+              mesa-libGL-devel
+              mesa-libEGL-devel
+              libX11-devel
+              libXcursor-devel
+              libXft-devel
+              libXext-devel
+              libXrandr-devel
+              libxkbcommon-devel
+              wayland-devel
+              gettext-devel
+              kernel-headers
+              ninja-build
+              gcc-toolset-13
+              texinfo
+              nasm
+              unzip
+              zip
+              tar
+              perl
+            )
+            dnf install -y "$${packages[@]}"
+        EOF
+        ENV BUILD_AUTOCONF_SHA512=3f71d459e2127ef2c98b37f11f5284f0c92318ad8d31c5b6034bed370adfe9f3d0f7a12f87e2efced06c11e2a159de4d4a292b751104e83daf11342f25ba9721
+        RUN <<EOF
+            tmpdir="$$(mktemp -d)"
+            tarball="$$tmpdir/autoconf.tar.gz"
+            curl -L https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.gz -o "$$tarball"
+            printf '%s  %s\n' "$$BUILD_AUTOCONF_SHA512" "$$tarball" | sha512sum -c -
+            tar xf "$$tarball" -C "$$tmpdir"
+            cd "$$tmpdir/autoconf-2.72"
+            ./configure --prefix=/usr/local
+            make && make install
+            rm -rf "$$tmpdir"
+        EOF
+        RUN echo "source /opt/rh/gcc-toolset-13/enable" > /etc/profile.d/activate-gcc.sh
+        ENV VCPKG_INSTALLATION_ROOT=/vcpkg
+        ENV PATH="$$VCPKG_INSTALLATION_ROOT:$$PATH"
+        ENV VCPKG_REVISION=6d332a018c433fad20822ff4b536e4ccdc3413bd
+        RUN <<EOF
+            git clone https://github.com/microsoft/vcpkg.git "$$VCPKG_INSTALLATION_ROOT"
+            cd "$$VCPKG_INSTALLATION_ROOT"
+            git fetch
+            git checkout $$VCPKG_REVISION
+            ./bootstrap-vcpkg.sh -disableMetrics
+        EOF
+        RUN git config --global --add safe.directory /build/openmw-deps-build
+    pull_policy: build
+    volumes:
+      - ../..:/build/openmw-deps-build
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    working_dir: /build/openmw-deps-build
