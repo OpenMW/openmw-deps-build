@@ -5,6 +5,7 @@
     "boost-program-options",
     {
       "name": "bullet3",
+      "version>=": "3.25",
       "features": [
         "double-precision",
         "multithreading"
@@ -52,6 +53,14 @@
   ],
   "builtin-baseline": "a5f736224e85b32e25a8ffc52562333180396642",
   "overrides": [
+    {
+      "name": "vcpkg-tool-meson",
+      "version": "1.9.0"
+    },
+    {
+      "name": "bullet3",
+      "version": "3.25"
+    },
     {
       "name": "mygui",
       "version": "3.5.3"
