@@ -5,6 +5,7 @@
     "boost-program-options",
     {
       "name": "bullet3",
+      "version>=": "3.25",
       "features": [
         "double-precision",
         "multithreading"
@@ -16,14 +17,20 @@
     "luajit",
     "lz4",
     {
+      "name": "msdfgen",
+      "default-features": false,
+      "features": [
+        "extensions"
+      ]
+    },
+    {
       "name": "mygui",
-      "platform": "!osx"
+      "version>=": "3.5.4",
+      "features": [
+        "msdf"
+      ]
     },
     "openal-soft",
-    {
-      "name": "openmw-mygui-osx",
-      "platform": "osx"
-    },
     "openmw-osg",
     {
       "name": "sdl2",
@@ -42,6 +49,21 @@
     {
       "name": "unshield",
       "platform": "osx|linux"
+    }
+  ],
+  "builtin-baseline": "511f8b2c27b6f4990b10eed3a0ea1273f3cbc5f9",
+  "overrides": [
+    {
+      "name": "vcpkg-tool-meson",
+      "version": "1.9.0"
+    },
+    {
+      "name": "bullet3",
+      "version": "3.25"
+    },
+    {
+      "name": "mygui",
+      "version": "3.5.4"
     }
   ]
 }

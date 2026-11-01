@@ -33,13 +33,12 @@ Running the core commands should work out of the box on a Windows machine of the
 
 ## MacOS
 
-You will need to change the variables towards the top of the OpenMW `before_script.macos.sh` file to:
+You need to install the following: `brew install autoconf autoconf-archive automake`
 
-```
-DEPENDENCIES_ROOT_PATH="/DIRECTORY/vcpkg-macos-test"
-```
+1. `vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet arm64-osx-dynamic --host-triplet arm64-osx-dynamic`
+1. `vcpkg export --x-all-installed --raw --output vcpkg-macos-test --output-dir DIRECTORY`
 
-And then proceed as normal.
+To use it in OpenMW building, merely pass the full path directory to the `before_script.macos.sh` file as `-d DIR`.
 
 ## Linux
 

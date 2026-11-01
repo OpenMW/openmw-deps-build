@@ -5,7 +5,8 @@ on:
 - pull_request
 
 env:
-  VCPKG_REVISION: 6d332a018c433fad20822ff4b536e4ccdc3413bd
+  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+  VCPKG_REVISION: 511f8b2c27b6f4990b10eed3a0ea1273f3cbc5f9
 
 jobs:
   linux:
@@ -77,7 +78,7 @@ jobs:
             rm -rf "$tmpdir"
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Export GitHub Actions cache environment variables
         uses: actions/github-script@v6
@@ -113,7 +114,7 @@ jobs:
       - run: tar -caf vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.tar.xz vcpkg-export/
 
       - name: Store exported vcpkg packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}
           path: ${{ github.workspace }}/vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.tar.xz
@@ -144,7 +145,7 @@ jobs:
       binary_cache_path: /Users/Shared/vcpkg-binary-cache/
       VCPKG_BINARY_SOURCES: "clear;files,/Users/Shared/vcpkg-binary-cache/,readwrite"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Export GitHub Actions cache environment variables
         uses: actions/github-script@v6
@@ -174,7 +175,7 @@ jobs:
           export-type: 7zip
 
       - name: Store exported vcpkg packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}
           path: ${{ github.workspace }}/vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.7z
@@ -214,7 +215,7 @@ jobs:
       VCPKG_BINARY_SOURCES: 'clear;files,C:\vcpkg-binary-cache\,readwrite'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Export GitHub Actions cache environment variables
       uses: actions/github-script@v6
@@ -253,7 +254,7 @@ jobs:
       run: 7z a "${{ github.workspace }}/vcpkg-${{ matrix.args.identifier }}-pdb-${{ github.sha }}.7z" installed
 
     - name: Store archived pdb files
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: vcpkg-${{ matrix.args.identifier }}-pdb-${{ github.sha }}
         path: ${{ github.workspace }}/vcpkg-${{ matrix.args.identifier }}-pdb-${{ github.sha }}.7z
@@ -263,7 +264,7 @@ jobs:
       run: 7z a "${{ github.workspace }}/vcpkg-${{ matrix.args.identifier }}-${{ github.sha }}.7z" * -x!pdb
 
     - name: Store exported vcpkg packages
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: vcpkg-${{ matrix.args.identifier }}-${{ github.sha }}
         path: ${{ github.workspace }}/vcpkg-${{ matrix.args.identifier }}-${{ github.sha }}.7z
@@ -303,10 +304,10 @@ jobs:
     if: ${{ github.ref_name != 'master' }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Download all artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
 
     - name: Set file name
       if: startsWith(github.ref, 'refs/tags/')
