@@ -114,7 +114,7 @@ jobs:
       - run: tar -caf vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.tar.xz vcpkg-export/
 
       - name: Store exported vcpkg packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}
           path: ${{ github.workspace }}/vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.tar.xz
@@ -175,7 +175,7 @@ jobs:
           export-type: 7zip
 
       - name: Store exported vcpkg packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}
           path: ${{ github.workspace }}/vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.7z
@@ -254,7 +254,7 @@ jobs:
       run: 7z a "${{ github.workspace }}/vcpkg-${{ matrix.args.identifier }}-pdb-${{ github.sha }}.7z" installed
 
     - name: Store archived pdb files
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: vcpkg-${{ matrix.args.identifier }}-pdb-${{ github.sha }}
         path: ${{ github.workspace }}/vcpkg-${{ matrix.args.identifier }}-pdb-${{ github.sha }}.7z
@@ -264,7 +264,7 @@ jobs:
       run: 7z a "${{ github.workspace }}/vcpkg-${{ matrix.args.identifier }}-${{ github.sha }}.7z" * -x!pdb
 
     - name: Store exported vcpkg packages
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: vcpkg-${{ matrix.args.identifier }}-${{ github.sha }}
         path: ${{ github.workspace }}/vcpkg-${{ matrix.args.identifier }}-${{ github.sha }}.7z
@@ -307,7 +307,7 @@ jobs:
     - uses: actions/checkout@v7
 
     - name: Download all artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
 
     - name: Set file name
       if: startsWith(github.ref, 'refs/tags/')
