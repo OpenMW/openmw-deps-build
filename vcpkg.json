@@ -25,7 +25,7 @@
     },
     {
       "name": "mygui",
-      "version>=": "3.5.3",
+      "version>=": "3.5.4",
       "features": [
         "msdf"
       ]
@@ -51,7 +51,7 @@
       "platform": "osx|linux"
     }
   ],
-  "builtin-baseline": "a5f736224e85b32e25a8ffc52562333180396642",
+  "builtin-baseline": "511f8b2c27b6f4990b10eed3a0ea1273f3cbc5f9",
   "overrides": [
     {
       "name": "vcpkg-tool-meson",
@@ -63,7 +63,7 @@
     },
     {
       "name": "mygui",
-      "version": "3.5.3"
+      "version": "3.5.4"
     }
   ]
 }

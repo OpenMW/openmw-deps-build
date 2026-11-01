@@ -6,7 +6,7 @@ on:
 
 env:
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
-  VCPKG_REVISION: a5f736224e85b32e25a8ffc52562333180396642
+  VCPKG_REVISION: 511f8b2c27b6f4990b10eed3a0ea1273f3cbc5f9
 
 jobs:
   linux:
